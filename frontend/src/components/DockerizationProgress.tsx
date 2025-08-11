@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Card,
@@ -36,11 +36,18 @@ const DockerizationProgress: React.FC<DockerizationProgressProps> = ({
   const [status, setStatus] = useState<DockerizationStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Keep a stable reference to the onComplete callback to avoid restarting the polling effect
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   const steps = [
     { key: TaskStatus.ANALYZING, label: 'Analyzing Repository', icon: <Analytics /> },
     { key: TaskStatus.CREATING_BRANCH, label: 'Creating Branch', icon: <CreateNewFolder /> },
     { key: TaskStatus.DOCKERIZING, label: 'Creating Docker Files', icon: <Build /> },
     { key: TaskStatus.CREATING_WORKFLOW, label: 'Setting up CI/CD', icon: <GitHub /> },
+    { key: TaskStatus.CREATING_K8S, label: 'Generating Kubernetes Manifests', icon: <Build /> },
     { key: TaskStatus.CREATING_PR, label: 'Creating Pull Request', icon: <MergeType /> },
   ];
 
@@ -67,14 +74,14 @@ const DockerizationProgress: React.FC<DockerizationProgressProps> = ({
 
         if (statusData.status === TaskStatus.COMPLETED || statusData.status === TaskStatus.FAILED) {
           clearInterval(intervalId);
-          onComplete(statusData);
+          onCompleteRef.current(statusData);
           return;
         }
 
         // Safety net: if PR URL exists or progress is 100, consider it completed
         if (statusData.pr_url || statusData.progress >= 100) {
           clearInterval(intervalId);
-          onComplete({
+          onCompleteRef.current({
             ...statusData,
             status: TaskStatus.COMPLETED,
             progress: 100,
@@ -96,7 +103,7 @@ const DockerizationProgress: React.FC<DockerizationProgressProps> = ({
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [taskId, onComplete]);
+  }, [taskId]);
 
   if (error) {
     return (

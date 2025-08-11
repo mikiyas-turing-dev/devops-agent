@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ThemeProvider,
   CssBaseline,
@@ -66,12 +66,12 @@ function App() {
     }
   };
 
-  const handleDockerizationComplete = (status: DockerizationStatus) => {
+  const handleDockerizationComplete = useCallback((status: DockerizationStatus) => {
     setCompletionStatus(status);
     setShowCompletionDialog(true);
     setShowDockerAccordion(false);
     setDockerStatus(status);
-  };
+  }, []);
 
   const handleStartNew = () => {
     setAnalysis(null);
@@ -190,10 +190,7 @@ function App() {
                 <Box sx={{ mt: 2 }}>
                   <DockerizationProgress
                     taskId={dockerizationTaskId}
-                    onComplete={(s) => {
-                      setDockerStatus(s);
-                      handleDockerizationComplete(s);
-                    }}
+                    onComplete={handleDockerizationComplete}
                   />
                 </Box>
               </Box>

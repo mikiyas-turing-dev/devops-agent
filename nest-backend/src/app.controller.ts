@@ -27,7 +27,7 @@ export class AppController {
 
   @Get('health')
   async healthCheck() {
-    const openaiConfigured = !!this.configService.get('OPENROUTER_API_KEY');
+  const openaiConfigured = !!this.configService.get('MODEL_API_KEY');
     return {
       status: 'healthy',
       ai_configured: openaiConfigured,

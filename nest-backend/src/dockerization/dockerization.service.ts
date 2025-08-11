@@ -48,7 +48,7 @@ export class DockerizationService implements OnModuleInit {
         taskId,
         repoUrl: request.repo_url,
         githubToken: request.github_token,
-        openaiApiKey: this.configService.get('OPENAI_API_KEY'),
+  // LLM credentials are read from process env via ConfigService where needed
         analysisId: request.analysis_id,
         analysis,
       },

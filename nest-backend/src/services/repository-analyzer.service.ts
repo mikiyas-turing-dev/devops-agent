@@ -49,14 +49,15 @@ export class RepositoryAnalyzerService {
       // Create MCPClient from configuration dictionary
       this.mcpClient = MCPClient.fromDict(config);
 
-      const openrouterApiKey = this.configService.get('OPENROUTER_API_KEY');
+  const modelApiKey = this.configService.get('MODEL_API_KEY');
+  const model = this.configService.get<string>('MODEL') || 'openai/gpt-4o-mini';
 
       const llm = new ChatOpenAI({
-        model: 'openai/gpt-4o-mini',
+        model,
         temperature: 0.1,
-        apiKey: openrouterApiKey,
+  apiKey: modelApiKey,
         configuration: {
-          baseURL: 'https://openrouter.ai/api/v1',
+          baseURL: this.configService.get<string>('MODEL_BASE_URL') || 'https://openrouter.ai/api/v1',
         },
       });
 
@@ -87,7 +88,7 @@ export class RepositoryAnalyzerService {
       }
 
       // Use MCP agent to get repository structure
-      const structureQuery = `Get the file structure and contents of the GitHub repository ${owner}/${repo}. Focus on getting the root directory structure and the contents of important configuration files like package.json, requirements.txt, Cargo.toml, pom.xml, build.gradle, composer.json, go.mod, Pipfile, README.md, README.rst, tsconfig.json, next.config.js, angular.json, vue.config.js, nuxt.config.js.`;
+      const structureQuery = `Get the file structure and contents of the GitHub repository ${owner}/${repo} Focus only on the main or master branch start in the route path /. Focus on getting the root directory structure and the contents of important configuration files like package.json, requirements.txt, Cargo.toml, pom.xml, build.gradle, composer.json, go.mod, Pipfile, README.md, README.rst, tsconfig.json, next.config.js, angular.json, vue.config.js, nuxt.config.js.`;
 
       const result = await this.mcpAgent.run(structureQuery);
 

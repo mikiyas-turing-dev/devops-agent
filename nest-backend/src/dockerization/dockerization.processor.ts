@@ -9,7 +9,6 @@ interface DockerizationJobData {
   taskId: string;
   repoUrl: string;
   githubToken: string;
-  openaiApiKey: string;
   analysisId: string;
   analysis: AnalysisResponseDto;
 }
@@ -78,6 +77,16 @@ export class DockerizationProcessor extends WorkerHost {
 
       await agent.createGithubWorkflow(owner, repo, analysis, branch);
 
+      // AI-generated Kubernetes manifests
+      await job.updateProgress(80);
+      this.dockerizationService.updateTaskStatusFromProcessor(taskId, {
+        status: TaskStatus.CREATING_K8S,
+        message: 'AI generating Kubernetes manifests...',
+        progress: 80,
+      });
+
+      await agent.createKubernetesConfigs(owner, repo, analysis, branch);
+
       // Create pull request with AI description
       await job.updateProgress(90);
       this.dockerizationService.updateTaskStatusFromProcessor(taskId, {
@@ -86,7 +95,7 @@ export class DockerizationProcessor extends WorkerHost {
         progress: 90,
       });
 
-      const prUrl = await agent.createPullRequest(owner, repo, branch, analysis);
+      const prUrl = await agent.createPullRequest(owner, repo, branch, analysis, githubToken);
 
       // Complete
       await job.updateProgress(100);

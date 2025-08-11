@@ -264,10 +264,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
       <Card>
         <CardContent sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h5" gutterBottom>
-            Ready to Dockerize?
+            Ready to Dockerize & Deploy?
           </Typography>
           <Typography variant="body1" color="text.secondary" paragraph>
-            Generate optimized Docker configuration and CI/CD pipeline for your repository
+            Generate Dockerfiles, CI/CD, and Kubernetes manifests, then open a pull request automatically.
           </Typography>
           
           <Button
@@ -278,7 +278,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             disabled={loading}
             sx={{ px: 4, py: 1.5 }}
           >
-            {loading ? 'Starting Dockerization...' : 'Start Dockerization'}
+            {loading ? 'Starting Automation...' : 'Dockerize & Generate K8s'}
           </Button>
         </CardContent>
       </Card>

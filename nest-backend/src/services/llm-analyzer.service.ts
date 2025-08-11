@@ -12,6 +12,7 @@ import {
   DockerfileContentDto,
   DockerComposeContentDto,
   WorkflowContentDto,
+  KubernetesConfigsDto,
 } from '../common/dto';
 
 @Injectable()
@@ -19,13 +20,14 @@ export class LlmAnalyzerService {
   private llm: ChatOpenAI;
 
   constructor(private configService: ConfigService) {
-    const openrouterApiKey = this.configService.get('OPENROUTER_API_KEY');
+  const modelApiKey = this.configService.get('MODEL_API_KEY');
+  const model = this.configService.get<string>('MODEL') || 'openai/gpt-4o-mini';
     this.llm = new ChatOpenAI({
-      model: 'openai/gpt-4o-mini',
+      model,
       temperature: 0.1,
-      apiKey: openrouterApiKey,
+  apiKey: modelApiKey,
       configuration: {
-        baseURL: 'https://openrouter.ai/api/v1',
+        baseURL: this.configService.get<string>('MODEL_BASE_URL') || 'https://openrouter.ai/api/v1',
       },
     });
   }
@@ -298,6 +300,48 @@ export class LlmAnalyzerService {
     } catch (error) {
       throw new HttpException(
         `Failed to generate GitHub workflow${error instanceof Error ? `: ${error.message}` : ''}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async generateKubernetesConfigs(analysis: AnalysisResponseDto): Promise<KubernetesConfigsDto> {
+    const prompt = ChatPromptTemplate.fromMessages([
+      new SystemMessage(`You are a Kubernetes and DevOps expert. Generate production-ready Kubernetes manifests.
+            Requirements:
+            - Create namespace, Deployment, Service, and optional Ingress.
+            - Include ConfigMap/Secret placeholders for env vars.
+            - Use resource requests/limits and readiness/liveness probes.
+            - Follow best practices for the given language/framework.
+            - Assume Dockerfile exists and image will be built and pushed as 'ghcr.io/OWNER/REPO:latest'.
+            - Return JSON with 'explanation' and 'items' (array of { path, content }).`),
+      new HumanMessage(`
+            Project: ${analysis.project_overview.name}
+            Language: ${analysis.technical_architecture.technology_stack.language}
+            Framework: ${analysis.technical_architecture.technology_stack.framework}
+            Domain: ${analysis.project_overview.domain}
+            
+            Return JSON format:
+            {
+              "explanation": "brief explanation",
+              "items": [
+                { "path": "k8s/namespace.yaml", "content": "apiVersion: v1..." },
+                { "path": "k8s/deployment.yaml", "content": "apiVersion: apps/v1..." },
+                { "path": "k8s/service.yaml", "content": "apiVersion: v1..." },
+                { "path": "k8s/ingress.yaml", "content": "apiVersion: networking.k8s.io/v1..." }
+              ]
+            }
+            `),
+    ]);
+
+    try {
+      const messages = await prompt.formatMessages({});
+      const response = await this.llm.invoke(messages);
+      const k8sData = this.extractJsonFromResponse<KubernetesConfigsDto>(response.content);
+      return k8sData;
+    } catch (error) {
+      throw new HttpException(
+        `Failed to generate Kubernetes configs${error instanceof Error ? `: ${error.message}` : ''}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

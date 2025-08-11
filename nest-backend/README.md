@@ -1,6 +1,6 @@
 # 🚀 NestJS AI-Powered DevOps Agent Backend
 
-An intelligent NestJS backend service that uses **OpenAI GPT-4** and **LangChain** to analyze GitHub repositories, detects technology stacks, and generates Docker configurations with CI/CD pipelines.
+An intelligent NestJS backend service that uses **LangChain** with OpenRouter (GPT-4 family and others) to analyze GitHub repositories, detect technology stacks, and generate Docker configurations with CI/CD pipelines.
 
 ## 🤖 AI Features
 
@@ -24,7 +24,7 @@ An intelligent NestJS backend service that uses **OpenAI GPT-4** and **LangChain
 
 ### Prerequisites
 
-1. **OpenAI API Key**: Required for AI-powered analysis
+1. **Model API Key**: Required for AI-powered analysis
 2. **Node.js 20+**: For running the NestJS application
 3. **Redis**: For background job processing
 
@@ -36,7 +36,7 @@ cd nest-backend
 
 # Copy and configure environment
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Edit .env and add your MODEL_API_KEY (and optional MODEL)
 
 # Start all services
 docker-compose up -d
@@ -52,7 +52,8 @@ docker-compose logs -f app
 npm install
 
 # Set environment variables
-export OPENAI_API_KEY="your-openai-api-key"
+export MODEL_API_KEY="your-model-api-key"
+export MODEL="openai/gpt-4o-mini"
 export REDIS_URL="redis://localhost:6379"
 
 # Start Redis (if not using Docker)
@@ -155,7 +156,8 @@ Get the status of a dockerization task.
 |----------|-------------|---------|
 | `NODE_ENV` | Application environment | `development` |
 | `PORT` | Application port | `8000` |
-| `OPENAI_API_KEY` | OpenAI API key | Required |
+| `MODEL_API_KEY` | Model API key | Required |
+| `MODEL` | Model id to use (via OpenRouter base URL) | `openai/gpt-4o-mini` |
 | `REDIS_HOST` | Redis host | `localhost` |
 | `REDIS_PORT` | Redis port | `6379` |
 | `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
@@ -215,7 +217,8 @@ Create a `.env` file:
 ```env
 NODE_ENV=development
 PORT=8000
-OPENAI_API_KEY=your_openai_api_key_here
+MODEL_API_KEY=your_model_api_key_here
+MODEL=openai/gpt-4o-mini
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
@@ -232,7 +235,8 @@ REDIS_PORT=6379
 2. **Set production environment variables:**
    ```bash
    export NODE_ENV=production
-   export OPENAI_API_KEY=your_production_key
+  export MODEL_API_KEY=your_production_key
+  export MODEL=openai/gpt-4o-mini
    export REDIS_URL=your_production_redis_url
    ```
 

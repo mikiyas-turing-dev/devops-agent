@@ -53,6 +53,7 @@ export enum TaskStatus {
   DOCKERIZING = "dockerizing",
   CREATING_BRANCH = "creating_branch",
   CREATING_WORKFLOW = "creating_workflow",
+  CREATING_K8S = "creating_k8s",
   CREATING_PR = "creating_pr",
   COMPLETED = "completed",
   FAILED = "failed"

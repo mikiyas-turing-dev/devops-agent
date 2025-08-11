@@ -7,6 +7,7 @@ export enum TaskStatus {
   DOCKERIZING = 'dockerizing',
   CREATING_BRANCH = 'creating_branch',
   CREATING_WORKFLOW = 'creating_workflow',
+  CREATING_K8S = 'creating_k8s',
   CREATING_PR = 'creating_pr',
   COMPLETED = 'completed',
   FAILED = 'failed',
@@ -68,5 +69,21 @@ export class WorkflowContentDto {
 
   @IsString({ each: true })
   features: string[];
+}
+
+export class KubernetesConfigItemDto {
+  @IsString()
+  path: string; // e.g., 'k8s/deployment.yaml'
+
+  @IsString()
+  content: string; // YAML content
+}
+
+export class KubernetesConfigsDto {
+  @IsString()
+  explanation: string;
+
+  // Use simple shape to keep flexibility for multiple files
+  items: KubernetesConfigItemDto[];
 }
 

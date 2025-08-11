@@ -31,10 +31,10 @@ export class DockerizationController {
       );
     }
 
-    // Check OpenRouter API key
-    const openrouterApiKey = this.configService.get('OPENROUTER_API_KEY');
-    if (!openrouterApiKey) {
-      throw new HttpException('OpenRouter API key not configured', HttpStatus.INTERNAL_SERVER_ERROR);
+    // Check Model API key
+    const modelApiKey = this.configService.get('MODEL_API_KEY');
+    if (!modelApiKey) {
+      throw new HttpException('Model API key not configured', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     try {

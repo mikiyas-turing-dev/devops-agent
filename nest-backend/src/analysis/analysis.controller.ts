@@ -15,11 +15,14 @@ export class AnalysisController {
 
   @Post('analyze')
   async analyzeRepository(@Body() request: RepositoryRequestDto): Promise<{ analysis_id: string }> {
-    // Check OpenRouter API key
-    const openrouterApiKey = this.configService.get('OPENROUTER_API_KEY');
-    if (!openrouterApiKey) {
-      throw new HttpException('OpenRouter API key not configured', HttpStatus.INTERNAL_SERVER_ERROR);
+    // Check Model API key
+    const modelApiKey = this.configService.get('MODEL_API_KEY');
+    if (!modelApiKey) {
+      throw new HttpException('Model API key not configured', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+  const model = this.configService.get<string>('MODEL') || 'openai/gpt-4o-mini';
+    console.log('Using model:', model);
 
     try {
       // Start analysis in background and return task id
